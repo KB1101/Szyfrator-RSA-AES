@@ -1,0 +1,197 @@
+﻿<Window x:Name="RSA___AES_by_Kornel_Kopko" x:Class="bsk.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:bsk"
+        mc:Ignorable="d"
+        Title="RSA + Rijndael | Kornel Kopko" Height="586.817" Width="474.246">
+    <Grid Margin="0,0,2,1">
+        <TabControl x:Name="tabControl" Margin="10">
+            <TabItem x:Name="tabSzyfrowanie" Header="Szyfrowanie" Margin="-2,0" GotFocus="tabSzyfrowanie_GotFocus">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox x:Name="groupBox" Header="Plik" Margin="10,10,10,0" VerticalAlignment="Top" Height="90" BorderBrush="#FF80C2EA">
+                        <Canvas Margin="0,0,-2,6">
+                            <Label x:Name="label" Content="Plik wyjściowy:" Canvas.Top="32"/>
+                            <Label x:Name="label1" Content="Plik wejściowy:" Canvas.Top="3"/>
+                            <TextBox x:Name="textBoxInFile" HorizontalAlignment="Left" Height="22" TextWrapping="Wrap" Text="..." VerticalAlignment="Top" Width="201" Canvas.Left="92" Canvas.Top="7" TextChanged="textBox_TextChanged" IsEnabled="False"/>
+                            <TextBox x:Name="textBoxOutFile" HorizontalAlignment="Left" Height="20" TextWrapping="Wrap" Text="..." VerticalAlignment="Top" Width="201" TextChanged="textBox_TextChanged" Canvas.Left="92" Canvas.Top="35" IsEnabled="False"/>
+                            <Button x:Name="buttonInFile" Content="Wybierz" Canvas.Left="316" Canvas.Top="9" Width="75" Click="Button_chose_in_file" Background="#FF68B2FB"/>
+                            <Button x:Name="buttonOutFile" Content="Zapisz jako" Canvas.Left="316" Canvas.Top="35" Width="75" Background="#FF68B2FB" Click="Button_chose_out_file"/>
+                        </Canvas>
+
+
+                    </GroupBox>
+                    <GroupBox x:Name="groupBox1" Header="Rijndael - ustawienia" Margin="10,105,10,0" VerticalAlignment="Top" Height="135" BorderBrush="#FF80C2EA">
+                        <Canvas Margin="0,0,-2,-2">
+                            <TextBlock x:Name="textBlock" Canvas.Left="10" TextWrapping="Wrap" Text="Długość klucza:" Canvas.Top="11" Height="22" RenderTransformOrigin="0.439,2.909"/>
+                            <TextBlock x:Name="textBlock1" Canvas.Left="10" TextWrapping="Wrap" Canvas.Top="38" RenderTransformOrigin="0.519,0.438" Height="23"><Run Text="Długość bloku"/><Run Text=":"/></TextBlock>
+                            <TextBlock x:Name="textBlock1_Copy" TextWrapping="Wrap" Text="Tryb pracy:" Height="23" Canvas.Left="10" Canvas.Top="66" Width="57"/>
+
+
+                            <!--Dłogosc klucza AES-->
+                            <Button x:Name="dlkluczaButton"  Height="23" Canvas.Left="101" Canvas.Top="9" Width="57" Background="White" 
+                                    Click="Button_Click_keySize" ContextMenuService.IsEnabled="False">
+
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="128"  Click="menuAESKeySize" />
+                                        <!--<MenuItem Header="160" Click="menuAESKeySize"/>-->
+                                        <MenuItem Header="192" Click="menuAESKeySize"/>
+                                        <!--<MenuItem Header="224" Click="menuAESKeySize"/>-->
+                                        <MenuItem Header="256" Click="menuAESKeySize"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="dlkluczaText" Text="128"/>
+                                        <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                    </StackPanel>
+                                </Button.Content>
+
+                            </Button>
+
+
+                            <!--Długosc Bloku-->
+                            <Button x:Name="dlBlokuButton" Background="White" Height="23" Canvas.Left="101" Canvas.Top="38" Width="57"
+                                    Click="Button_Click_BlockSize" ContextMenuService.IsEnabled="False">
+
+
+                                <Button.ContextMenu>
+                                    <ContextMenu >
+                                        <MenuItem Header="128"  Click="menuBlockSize" />
+                                        <MenuItem Header="192" Click="menuBlockSize"/>
+                                        <MenuItem Header="256" Click="menuBlockSize"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="dlBlokuText" Text="128"/>
+                                        <Path x:Name="BtnArrow1" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <!--Tryb pracy-->
+                            <Button Height="23" Canvas.Left="101" Canvas.Top="66" Width="57" Background="White"
+                                    Click="Button_Click_TrybPracy" ContextMenuService.IsEnabled="False">
+
+                                <Button.ContextMenu>
+                                    <ContextMenu >
+                                        <MenuItem Header="ECB"  Click="menuTrybPracy" />
+                                        <MenuItem Header="CBC" Click="menuTrybPracy"/>
+                                        <MenuItem Header="OFB" Click="menuTrybPracy"/>
+                                        <MenuItem Header="CFB" Click="menuTrybPracy"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="trybPracyText" Text="CBC"/>
+                                        <Path x:Name="BtnArrow2" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <TextBlock x:Name="textBlock_podblock" TextWrapping="Wrap" Height="23" Canvas.Left="192" Canvas.Top="66" Width="107" Background="#FFACACAC"><Run Text="Długość "/><Run Text="podbloku:"/></TextBlock>
+                            <!--Długosc Podbloku dla Sprzężenia zwrotnego-->
+                            <Button x:Name="feedbackButton" Background="#FFA2A2A2" Height="23" Canvas.Left="304" Canvas.Top="66" Width="57"
+                                    Click="Button_Click_FeedbackBlockSize" ContextMenuService.IsEnabled="False">
+                                <Button.ContextMenu>
+                                    <ContextMenu >
+                                        <MenuItem Header="8" Click="menuFeedbackBlockSize" />
+                                        <MenuItem Header="16" Click="menuFeedbackBlockSize"/>
+                                        <!--tutaj maja byc wielokrotnosci 8 !!!-->
+                                        <MenuItem Header="64" Click="menuFeedbackBlockSize"/>
+                                        <MenuItem Header="128" Click="menuFeedbackBlockSize"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="dlPodblokuText" Text="8"/>
+                                        <Path x:Name="BtnArrow3" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <TextBlock x:Name="textBlock_Copy1" TextWrapping="Wrap" Text="bits" Height="21" Canvas.Left="163" Canvas.Top="10" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                            <TextBlock x:Name="textBlock_Copy2" TextWrapping="Wrap" Text="bits" Height="23" Canvas.Left="163" Canvas.Top="38" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                            <TextBlock x:Name="textBlock_Copy3" TextWrapping="Wrap" Text="bits" Height="23" Canvas.Left="366" Canvas.Top="70" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                        </Canvas>
+                    </GroupBox>
+                    <GroupBox x:Name="groupBox2" Header="Odbiorcy" Margin="10,245,10,0" VerticalAlignment="Top" Height="180" BorderBrush="#FF80C2EA">
+                        <Canvas Margin="0,0,-2,-2">
+                            <Menu x:Name="odbiorcyMenu" HorizontalAlignment="Left" Height="140" VerticalAlignment="Top" Width="388" Canvas.Left="10" Canvas.Top="10" BorderBrush="#FFA0B7F5" OpacityMask="Red" Background="#FFEDF3F5" BorderThickness="1">
+                                <ScrollViewer HorizontalAlignment="Left" Height="140" Width="388" Margin="-9,0,0,0">
+                                    <StackPanel x:Name="odbiorcyMenuStack" Width="388" HorizontalAlignment="Left" Height="139" >
+                                        <!--<MenuItem x:Name="label1_Copy" Header="AAAAAAAAAAAAAAAAAAA" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" HorizontalAlignment="Left" Width="168" Margin="0" VerticalContentAlignment="Center" Padding="-29,0,-28,0"/>-->
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Menu>
+                        </Canvas>
+                    </GroupBox>
+                    <Button x:Name="buttonExit" Content="Zakończ" HorizontalAlignment="Left" Margin="102,430,0,0" VerticalAlignment="Top" Width="75" Background="#FF68B2FB" Click="buttonExit_Click"/>
+                    <Button x:Name="szyfrujButton" Content="Szyfruj" HorizontalAlignment="Left" Margin="17,430,0,0" VerticalAlignment="Top" Width="75" Background="#FF68B2FB" Click="szyfrujButton_Click"/>
+                    <ProgressBar Height="35" Margin="17,460,10,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Background="White"/>
+                    <Label x:Name="label6" Content="Stan: 0%" HorizontalAlignment="Left" Margin="192,465,0,0" VerticalAlignment="Top" Height="30"/>
+
+
+                </Grid>
+
+            </TabItem>
+            <TabItem x:Name="tabDeszyfrowanie" Header="Deszyfrowanie" GotFocus="tabDeszyfrowanie_GotFocus">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox x:Name="groupBox_Copy" Header="Plik" Margin="10,10,10,0" VerticalAlignment="Top" Height="90" BorderBrush="#FF80C2EA">
+                        <Canvas Margin="0,0,-2,6">
+                            <Label x:Name="label3" Content="Plik wyjściowy:" Canvas.Top="31"/>
+                            <Label x:Name="label4" Content="Plik wejściowy:" Canvas.Top="3"/>
+                            <TextBox x:Name="textBoxEncrypted" HorizontalAlignment="Left" Height="22" TextWrapping="Wrap" Text="..." VerticalAlignment="Top" Width="201" Canvas.Left="92" Canvas.Top="7" TextChanged="textBox_TextChanged" IsEnabled="False"/>
+                            <TextBox x:Name="textBoxDecrypted" HorizontalAlignment="Left" Height="20" TextWrapping="Wrap" Text="..." VerticalAlignment="Top" Width="201" TextChanged="textBox_TextChanged" Canvas.Left="92" Canvas.Top="35" IsEnabled="False"/>
+                            <Button x:Name="buttonInEncryptedFile" Content="Wybierz" Canvas.Left="316" Canvas.Top="9" Width="75" Click="buttonInEncryptedFile_Click" Background="#FF68B2FB"/>
+                            <Button x:Name="buttonOutFileDecrypted" Content="Zapisz jako" Canvas.Left="316" Canvas.Top="37" Width="75" Background="#FF68B2FB" Click="buttonOutFileDecrypted_Click"/>
+                        </Canvas>
+
+
+                    </GroupBox>
+                    <GroupBox x:Name="groupBox3" Header="Klucz" Margin="10,105,10,0" VerticalAlignment="Top" Height="235" BorderBrush="#FF80C2EA">
+                        <Canvas Margin="4,-6,4,3">
+                            <Menu  x:Name="prywatniOdbiorcyMenu" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="378" Canvas.Left="10" Canvas.Top="10" BorderBrush="#FFA0B7F5" OpacityMask="Red"  BorderThickness="1">
+                                <ScrollViewer HorizontalAlignment="Left" Height="150" Width="378" Margin="-9,0,0,0">
+                                    <StackPanel x:Name="stackKeys" Width="378" HorizontalAlignment="Left" >
+                                        <!--<MenuItem x:Name="label1_Copy" Header="AAAAAAAAAAAAAAAAAAA" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" HorizontalAlignment="Left" Width="168" Margin="0" VerticalContentAlignment="Center" Padding="-29,0,-28,0"/>-->
+                                    </StackPanel>
+                                </ScrollViewer>
+                                <!--<MenuItem x:Name="label3_Copy" Header="Kornel Kopko" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" Width="186"/>
+                                <MenuItem x:Name="label1_Copy" Header="Kornel Kopko" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" Width="186"/>-->
+                                <!--BorderBrush="#FFB2B2B2-->
+                            </Menu>
+                            <Label x:Name="label5" Content="Podaj hasło klucza prywatnego:" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="180"/>
+                            <!--<CheckBox x:Name="checkBox" Content="Pokazuj hasło" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="227" Canvas.Top="89" Checked="checkBox_Checked" Height="21" Unchecked="checkBox_Unchecked"/>-->
+                            <PasswordBox x:Name="passwordBox" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="191" Canvas.Top="180" Width="197" Password="" Height="26"/>
+                        </Canvas>
+                    </GroupBox>
+                    <Button x:Name="buttonDecrypt" Content="Deszyfruj" HorizontalAlignment="Left" Margin="10,345,0,0" VerticalAlignment="Top" Width="75" Height="25" Background="#FF68B2FB" Click="buttonDecrypt_Click"/>
+                    <Button x:Name="buttonExit2" Content="Zakończ" HorizontalAlignment="Left" Margin="90,345,0,0" VerticalAlignment="Top" Width="75" Height="25" Background="#FF68B2FB" Click="buttonExit_Click"/>
+                    <ProgressBar x:Name="progresBarDecrypt" HorizontalAlignment="Left" Height="25" Margin="170,345,0,0" VerticalAlignment="Top" Width="258" Value="0" ValueChanged="ProgressBar_ValueChanged_1"/>
+                    <Label x:Name="label7" Content="Stan: 0%" HorizontalAlignment="Left" Margin="267,345,0,0" VerticalAlignment="Top" Height="25"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="tabTozsamosci" Header="Tożsamości" GotFocus="tabTozsamosci_GotFocus">
+                <Grid Background="#FFE5E5E5">
+                    <Button x:Name="importKeyButton" Content="Importuj klucz plubliczny lub prywatny do bazy programu" HorizontalAlignment="Left" VerticalAlignment="Top" Width="418" Click="importKeyButton_Click" Background="#FF73E647" Margin="10,65,0,0" Height="40" FontSize="14"/>
+                    <Button x:Name="button3" Content="Usuń klucz" HorizontalAlignment="Left" VerticalAlignment="Top" Width="160" Background="#FF68B2FB" Margin="10,230,0,0"/>
+                    <Button x:Name="generateKeyButton" Content="Generuj klucz publiczny i prywanty" HorizontalAlignment="Left" VerticalAlignment="Top" Width="418" Background="#FF45E253" Click="generateKeyButton_Click" Margin="10,10,0,0" Height="40" FontSize="16"/>
+                    <Button x:Name="changeKeysLocalizationButton" Content="Zmień lokalizacje klucza publicznego" HorizontalAlignment="Left" VerticalAlignment="Top" Width="418" Background="#FF68B2FB" Click="changeKeysLocalizationButton_Click" Margin="10,175,0,0" Height="40" FontSize="14"/>
+                    <Button x:Name="buttonPrivateKeyLocalization" Content="Zmień lokalizacje zaszyfrowanego klucza prywatnego" HorizontalAlignment="Left" VerticalAlignment="Top" Width="418" Click="buttonPrivateKeyLocalization_Click" Height="40" BorderBrush="#FF4BA5FF" TextOptions.TextHintingMode="Fixed" Margin="10,120,0,0" FontSize="14" Background="#FF68B2FB"/>
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+</Window>
