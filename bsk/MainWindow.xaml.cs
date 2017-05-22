@@ -57,6 +57,8 @@ namespace bsk
             string[] args = Environment.GetCommandLineArgs(); //weź argumenty z lini poleceń
             Dictionary<String, String> argsContener = new Dictionary<string, string>();
 
+
+            //pobieranie argumentow z konsoli
             for (int index = 1; index < args.Length; index += 2) // od 1 bo pierwszy element zawsze jest nazwą programu w WINDOWS
             {
                 argsContener.Add(args[index].Trim(), args[index + 1].Trim());
@@ -65,13 +67,14 @@ namespace bsk
             InitializeComponent(); // włacz GUI
             feedbackBlockState = false; //zablokuj na start pole FeedbackBlock(Size)
 
+            // odpal aesa
             aesConfig = new AESConfigClass();
             var me = this;
             aesWorker = new AESWorkerClass(ref aesConfig, ref me);
 
-            this.users = new List<UserInfo>();
-            this.selectedUsers = new List<UserInfo>();
-            this.privateUsers = new List<UserInfo>();
+            this.users = new List<UserInfo>(); // uzytkownicy klucza publicznego    
+            this.selectedUsers = new List<UserInfo>(); // uzytkownicy klucza prywatnego/publicznego kotrzy zostali "wybrani"
+            this.privateUsers = new List<UserInfo>(); // uzytkownicy klucza prywatnego
 
             string value;
             string arg = "--public-keys-dir";
@@ -97,6 +100,12 @@ namespace bsk
                 }
             }
 
+            ProgramDataBaseDir();
+            ShowPublicKeysList();
+        }
+        
+        private void ProgramDataBaseDir()
+        {
             // tworzenie katalogów dla kluczy, istotne!
             String[] directiories;
             StringBuilder path;
@@ -104,7 +113,7 @@ namespace bsk
             {
                 directiories = this.publicKeysDirPath.Split('\\');
                 path = new StringBuilder();
-                foreach(var dir in directiories)
+                foreach (var dir in directiories)
                 {
                     path.Append(dir);
                     if (!Directory.Exists(path.ToString()))
@@ -119,7 +128,8 @@ namespace bsk
             {
                 Console.WriteLine(ex.ToString());
             }
-            try { 
+            try
+            {
                 directiories = this.privateKeysDirPath.Split('\\');
                 path = new StringBuilder();
                 foreach (var dir in directiories)
@@ -133,16 +143,13 @@ namespace bsk
                     path.Append(@"\");
                 }
 
-            } catch(IOException ex)
+            }
+            catch (IOException ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-
-            showPublicKeysList();
         }
-        
-
-        private void showPublicKeysList()
+        private void ShowPublicKeysList()
         {
             String[] files = Directory.GetFiles(this.@publicKeysDirPath);
             this.keyFiles = new List<string>();
@@ -173,14 +180,7 @@ namespace bsk
         {
 
         }
-        private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
 
-        }
-        private void ProgressBar_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-
-        }
         /* ---------------------- KONFIGI AES ---------------------- */
         private void Button_Click_keySize(object sender, RoutedEventArgs e)
         {
@@ -574,19 +574,18 @@ namespace bsk
             String getKey = this.passwordBox.Password as String;
             rsaWorker.RSAXmlToKey(this.selectedPrivateUser.privKeyLoc, getKey);
 
-            Dispatcher disp = Dispatcher.CurrentDispatcher;
-            var t = Task.Run(() =>
+            var me = this;
+            Task.Run(() =>
             {
-                aesWorker.AESDecrypt(this.selectedPrivateUser.email, ref this.rsaWorker,  this.progresBarDecrypt, ref disp);
-                MessageBox.Show(this, "Odszyfrowano");
-                if (this.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(this.outDecryptedPath));
+                aesWorker.AESDecrypt(selectedPrivateUser.email, ref rsaWorker);
+                this.Dispatcher.BeginInvoke((Action)delegate
+                {
+                    MessageBox.Show(me, "Odszyfrowano");
+                    if (me.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(me.outDecryptedPath));
+                    me.decryptionProgressBar.Value = 0;
+                });
+
             });
-
-
-
-            
-
-
         }
 
 
@@ -612,12 +611,22 @@ namespace bsk
             aesWorker.setOutFilePath(this.outFilePath);
             aesWorker.setUsers(this.selectedUsers);
 
-            using (FileStream fileStream = new FileStream(this.inFilePath, FileMode.Open)) aesWorker.xmlAesHeader.lng = fileStream.Length;
-            
-            aesWorker.AESEncrypt();
+           
 
-            MessageBox.Show(this, "Zaszyfrowano");
-            if (this.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(this.inFilePath));
+            var me = this;
+            Task.Run( () =>
+            {
+                aesWorker.AESEncrypt();
+                this.Dispatcher.BeginInvoke((Action)delegate
+                {
+                    MessageBox.Show(me, "Zaszyfrowano");
+                    if (me.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(me.inFilePath));
+                    me.decryptionProgressBar.Value = 0;
+                });
+
+            });
+
+           
 
         }
 

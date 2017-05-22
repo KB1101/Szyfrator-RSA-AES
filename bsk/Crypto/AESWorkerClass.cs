@@ -134,25 +134,38 @@ namespace bsk
         }
         public void AESEncrypt()
         {
-            // tu zrobic szyfrowanie
-            this.memorySerializator();
-            byte[] xmlHeaderBytes = this.xmlMemoryStream.ToArray();
-
             //create output file stream
             FileStream fileOutStream = new FileStream(outFile, FileMode.Create);
             // create input file stream
             FileStream fileInStream = new FileStream(inFile, FileMode.Open);
 
-       
+            //wielkosc pliku do XML
+            this.xmlAesHeader.lng = fileInStream.Length;
+
+            // serializacja nagłowka do XML
+            this.memorySerializator();
+            byte[] xmlHeaderBytes = this.xmlMemoryStream.ToArray();
+
+
+
+            main.Dispatcher.BeginInvoke((Action)delegate
+            {
+                main.encrypionProgressBar.Maximum = this.xmlAesHeader.lng ;
+                main.encrypionProgressBar.Value = 0;
+            });
 
             byte[] intBytes = BitConverter.GetBytes(xmlHeaderBytes.Length);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(intBytes);
             byte[] result = intBytes;
 
-            fileOutStream.Write(result, 0,4); //-- nie zapisuj 
+            fileOutStream.Write(result, 0,4); //-- zapisz wielkosc XML'a
+
             //zapisz xmlA
             fileOutStream.Write(xmlHeaderBytes, 0, xmlHeaderBytes.Length);
+
+            //cryptostream 
+
 
             //cryptostream 
             if (aes.Mode != CipherMode.OFB)
@@ -167,6 +180,10 @@ namespace bsk
                     {
                         // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
                         cryptoStream.Write(buffer, 0, read);
+                        main.Dispatcher.BeginInvoke((Action)delegate
+                        {
+                            main.encrypionProgressBar.Value += read;
+                        });
                     }
 
                     //close up
@@ -190,7 +207,7 @@ namespace bsk
             else
             {
                 StreamCipher streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
-                CryptoStream cryptoStream = new CryptoStream(fileOutStream,streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
+                CryptoStream cryptoStream = new CryptoStream(fileOutStream, streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
                 byte[] buffer = new byte[8];
                 int read;
 
@@ -199,6 +216,10 @@ namespace bsk
                     while ((read = fileInStream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
+                        main.Dispatcher.BeginInvoke((Action)delegate
+                        {
+                            main.encrypionProgressBar.Value += read;
+                        });
                         cryptoStream.Write(buffer, 0, read);
                     }
 
@@ -223,17 +244,70 @@ namespace bsk
                     this.xmlMemoryStream.Dispose();
                 }
             }
-            
-          
+
+            //byte[] buffer;
+            //int read = 0;
+            //CryptoStream cryptoStream;
+            //StreamCipher streamCipher = new StreamCipher();
+            //if (aes.Mode != CipherMode.OFB)
+            //{
+            //    cryptoStream = new CryptoStream(fileInStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            //    buffer = new byte[1048576];
+            //}
+            //else
+            //{
+            //    streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
+            //    cryptoStream = new CryptoStream(fileInStream, streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
+            //    buffer = new byte[8];
+            //}
+
+            //try
+            //{
+            //    while ((read = fileInStream.Read(buffer, 0, buffer.Length)) > 0)
+            //    {
+            //        // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
+            //        main.Dispatcher.BeginInvoke((Action)delegate
+            //        {
+            //            main.encrypionProgressBar.Value += read;
+            //        });
+            //        cryptoStream.Write(buffer, 0, read);
+            //    }
+
+            //    //close up
+
+            //    cryptoStream.Close();
+            //    cryptoStream.Dispose();
+            //    fileInStream.Close();
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("Error: " + ex.Message);
+            //}
+            //finally
+            //{
+
+            //    //streamCipher.Clear();
+            //   // streamCipher.Dispose();
+
+            //    fileOutStream.Close();
+            //    fileOutStream.Dispose();
+            //    this.xmlMemoryStream.Close();
+            //    this.xmlMemoryStream.Dispose();
+            //}
         }
 
-        public void AESDecrypt(String userMail,ref RSAWorkerClass rsa, System.Windows.Controls.ProgressBar pBar, ref System.Windows.Threading.Dispatcher disp)
+
+
+
+        public void AESDecrypt(String userMail, ref RSAWorkerClass rsa)
         {
        
             // create input file stream
             FileStream fileInStream = new FileStream(inFile, FileMode.Open);
+
             byte[] length = new byte[4];
-            fileInStream.Read(length, 0, length.Length);
+            fileInStream.Read(length, 0, length.Length); // pobranie dlogosci xml'a
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(length);
 
@@ -242,19 +316,11 @@ namespace bsk
             fileInStream.Read(xlmBytes, 0, intLenght);
             this.xmlMemoryStream = new MemoryStream(xlmBytes);
 
-            //disp.Invoke(
-            //() =>
-            //{
-                
-            //    pBar.Minimum = 1;
-            //    // Set Maximum to the total number of files to copy.
-            //    pBar.Maximum = xmlAesHeader.lng;
-            //    // Set the initial value of the ProgressBar.
-            //    pBar.Value = 1;
-
-            //    //XmlReader reader = XmlReader.Create(fileInStream);
-            //    //reader.ReadToDescendant("EncryptedFileHeader");
-            //});
+            main.Dispatcher.BeginInvoke((Action)delegate
+            {
+                main.decryptionProgressBar.Maximum = fileInStream.Length;
+                main.decryptionProgressBar.Value = 0;
+            });
 
 
             XmlSerializer xs = new XmlSerializer(typeof(XmlAesHeader));
@@ -297,7 +363,9 @@ namespace bsk
             CryptoStream cryptoStream;
             StreamCipher streamCipher;
             if (aes.Mode != CipherMode.OFB)
-            cryptoStream = new CryptoStream(fileInStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            {
+                cryptoStream = new CryptoStream(fileInStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            }
             else
             {
                 streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
@@ -314,7 +382,7 @@ namespace bsk
             else if (xmlAesHeader.lng > 1024) buffer = new byte[1024]; // 1kB buffer
             else buffer = new byte[1]; //8bit buffer
 
-            if (aes.Mode == CipherMode.OFB) buffer = new byte[1];
+            if (aes.Mode == CipherMode.OFB || aes.Mode == CipherMode.CFB) buffer = new byte[aes.FeedbackSize/8];
 
             try
             {
@@ -322,12 +390,14 @@ namespace bsk
                 {
                     fileOutStream.Write(buffer, 0, read);
 
-                    pBar.Value += read;
-                    pBar.UpdateLayout();
+                    main.Dispatcher.BeginInvoke((Action)delegate
+                    {
+                        main.decryptionProgressBar.Value += read;
+                    });
 
                     if (fileOutStream.Length == xmlAesHeader.lng) break;
 
-                    if ((fileOutStream.Length + buffer.Length) > xmlAesHeader.lng && aes.Mode != CipherMode.OFB)
+                    if ((fileOutStream.Length + buffer.Length) > xmlAesHeader.lng && (aes.Mode != CipherMode.OFB || aes.Mode == CipherMode.CFB))
                     {
                         if (fileOutStream.Length + 1024 > xmlAesHeader.lng) buffer = new byte[1];
                         else buffer = new byte[1024];

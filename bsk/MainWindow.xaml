@@ -135,7 +135,7 @@
                     </GroupBox>
                     <Button x:Name="buttonExit" Content="Zakończ" HorizontalAlignment="Left" Margin="102,430,0,0" VerticalAlignment="Top" Width="75" Background="#FF68B2FB" Click="buttonExit_Click"/>
                     <Button x:Name="szyfrujButton" Content="Szyfruj" HorizontalAlignment="Left" Margin="17,430,0,0" VerticalAlignment="Top" Width="75" Background="#FF68B2FB" Click="szyfrujButton_Click"/>
-                    <ProgressBar Height="35" Margin="17,460,10,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Background="White"/>
+                    <ProgressBar x:Name="encrypionProgressBar" Height="35" Margin="17,460,10,0" VerticalAlignment="Top" Background="White"/>
                     <Label x:Name="label6" Content="Stan: 0%" HorizontalAlignment="Left" Margin="192,465,0,0" VerticalAlignment="Top" Height="30"/>
 
 
@@ -175,7 +175,7 @@
                     </GroupBox>
                     <Button x:Name="buttonDecrypt" Content="Deszyfruj" HorizontalAlignment="Left" Margin="10,345,0,0" VerticalAlignment="Top" Width="75" Height="25" Background="#FF68B2FB" Click="buttonDecrypt_Click"/>
                     <Button x:Name="buttonExit2" Content="Zakończ" HorizontalAlignment="Left" Margin="90,345,0,0" VerticalAlignment="Top" Width="75" Height="25" Background="#FF68B2FB" Click="buttonExit_Click"/>
-                    <ProgressBar x:Name="progresBarDecrypt" HorizontalAlignment="Left" Height="25" Margin="170,345,0,0" VerticalAlignment="Top" Width="258" Value="0" ValueChanged="ProgressBar_ValueChanged_1"/>
+                    <ProgressBar x:Name="decryptionProgressBar" HorizontalAlignment="Left" Height="25" Margin="170,345,0,0" VerticalAlignment="Top" Width="258" />
                     <Label x:Name="label7" Content="Stan: 0%" HorizontalAlignment="Left" Margin="267,345,0,0" VerticalAlignment="Top" Height="25"/>
                 </Grid>
             </TabItem>

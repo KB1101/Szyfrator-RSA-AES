@@ -30,7 +30,7 @@ namespace bsk.Crypto.ThirdPartyCrypto
 
     public enum StreamMode
     {
-        CFB, OFB, CTR
+       CFB, OFB, CTR
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ namespace bsk.Crypto.ThirdPartyCrypto
         private int indexEncrypt, indexDecrypt;
 
         private RandomNumberGenerator rng = RandomNumberGenerator.Create();
-        private StreamMode mode = StreamMode.CFB;
+        private StreamMode mode = StreamMode.OFB;
 
 
         #region Properties
@@ -300,26 +300,33 @@ namespace bsk.Crypto.ThirdPartyCrypto
             Dispose();
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
-            for (int i = 0; i < keystreamEncrypt.Length; i++)
-                keystreamEncrypt[i] = 0x00;
-            keystreamEncrypt = null;
+            try
+            {
+                for (int i = 0; i < keystreamEncrypt.Length; i++)
+                    keystreamEncrypt[i] = 0x00;
+                keystreamEncrypt = null;
 
-            for (int i = 0; i < keystreamDecrypt.Length; i++)
-                keystreamDecrypt[i] = 0x00;
-            keystreamDecrypt = null;
+                for (int i = 0; i < keystreamDecrypt.Length; i++)
+                    keystreamDecrypt[i] = 0x00;
+                keystreamDecrypt = null;
 
-            for (int i = 0; i < key.Length; i++)
-                key[i] = 0x00;
-            key = null;
+                for (int i = 0; i < key.Length; i++)
+                    key[i] = 0x00;
+                key = null;
 
-            for (int i = 0; i < iv.Length; i++)
-                iv[i] = 0x00;
-            iv = null;
-
-            algo.Clear();
-            algo = null;
+                for (int i = 0; i < iv.Length; i++)
+                    iv[i] = 0x00;
+                iv = null;
+            }
+            catch (Exception) { };
+            try
+            {
+                algo.Clear();
+                algo = null;
+            }
+            catch (Exception) { };
         }
 
         #endregion
