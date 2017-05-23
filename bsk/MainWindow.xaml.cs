@@ -270,7 +270,7 @@ namespace bsk
             if (openFileDialog.ShowDialog() == true)
                 textBoxInFile.Text = openFileDialog.FileName;
             this.inFilePath = (textBoxInFile.Text).ToString();
-            aesWorker.setInFilePath(this.inFilePath);
+            aesWorker.SetInFilePath(this.inFilePath);
         }
         private void Button_chose_out_file(object sender, RoutedEventArgs e)
         {
@@ -278,7 +278,7 @@ namespace bsk
             if (saveFileDialog.ShowDialog() == true)
                 textBoxOutFile.Text=saveFileDialog.FileName;
             this.outFilePath = (textBoxOutFile.Text).ToString();
-            aesWorker.setOutFilePath(this.outFilePath);
+            aesWorker.SetOutFilePath(this.outFilePath);
         }
         /* ------------------------- KONFIGI PLIKOW KONIEC --------------------*/
        
@@ -405,16 +405,16 @@ namespace bsk
         {
             activeTab = tabEnum.Szyfrowanie;
             /* zmiana parametrow */
-            if (null != this.inFilePath) aesWorker.setInFilePath(this.inFilePath);
-            if (null != this.outFilePath) aesWorker.setOutFilePath(this.outFilePath);
+            if (null != this.inFilePath) aesWorker.SetInFilePath(this.inFilePath);
+            if (null != this.outFilePath) aesWorker.SetOutFilePath(this.outFilePath);
         }
 
         private void tabDeszyfrowanie_GotFocus(object sender, RoutedEventArgs e)
         {
             activeTab = tabEnum.Szyfrowanie;
             /* zmiana parametrow */
-            if (null != this.inEncryptedPath) aesWorker.setInFilePath(this.inEncryptedPath);
-            if (null != this.outDecryptedPath) aesWorker.setOutFilePath(this.outDecryptedPath);
+            if (null != this.inEncryptedPath) aesWorker.SetInFilePath(this.inEncryptedPath);
+            if (null != this.outDecryptedPath) aesWorker.SetOutFilePath(this.outDecryptedPath);
         }
         private void tabTozsamosci_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -438,7 +438,7 @@ namespace bsk
                 textBoxEncrypted.Text = openFileDialog.FileName;
             this.inEncryptedPath = (textBoxEncrypted.Text).ToString();
 
-            aesWorker.setInFilePath(this.inEncryptedPath);
+            aesWorker.SetInFilePath(this.inEncryptedPath);
 
             this.showPrivateKeysList();
         }
@@ -449,7 +449,7 @@ namespace bsk
             if (saveFileDialog.ShowDialog() == true)
                 textBoxDecrypted.Text = saveFileDialog.FileName;
             this.outDecryptedPath = (textBoxDecrypted.Text).ToString();
-            aesWorker.setOutFilePath(outDecryptedPath);
+            aesWorker.SetOutFilePath(outDecryptedPath);
         }
 
         private void privateUser_Click(object sender, RoutedEventArgs e)
@@ -607,9 +607,9 @@ namespace bsk
                 selectedUsers[index] = rsaWorker.GetUser();
             }
             aesWorker.AESEncryptConfig();
-            aesWorker.setInFilePath(this.inFilePath);
-            aesWorker.setOutFilePath(this.outFilePath);
-            aesWorker.setUsers(this.selectedUsers);
+            aesWorker.SetInFilePath(this.inFilePath);
+            aesWorker.SetOutFilePath(this.outFilePath);
+            aesWorker.SetUserList(this.selectedUsers);
 
            
 

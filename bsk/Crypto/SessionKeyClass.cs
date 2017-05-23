@@ -19,22 +19,22 @@ namespace bsk
         {
             this.plainKeyString = key.Trim();
             this.plainKeyBytes = Encoding.UTF8.GetBytes(this.plainKeyString);
-            generateSalt();
+            GenerateSalt();
         }
         public SessionKeyClass(byte[] key)
         {
             this.plainKeyBytes = key;
             this.plainKeyString = Encoding.UTF8.GetString(this.plainKeyBytes);
-            generateSalt();
+            GenerateSalt();
         }
         public void SessionKeyGenerate(Boolean withSalt = false)
         {
-            generateSalt();
-            this.sessionKeyString = RSAWorkerClass.getHashSha256(this.plainKeyString+((withSalt)?this.salt:String.Empty));
+            GenerateSalt();
+            this.sessionKeyString = RSAWorkerClass.GetHashSha256(this.plainKeyString+((withSalt)?this.salt:String.Empty));
             this.sessionKeyBytes = Encoding.UTF8.GetBytes(this.plainKeyString);
             this.salt = String.Empty;
         }
-        private void generateSalt()
+        private void GenerateSalt()
         {
             using (RandomNumberGenerator random = new RNGCryptoServiceProvider()) {
                 var timeNow = DateTime.Now;

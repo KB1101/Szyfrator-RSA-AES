@@ -73,11 +73,11 @@ namespace bsk
             aes.Dispose();
             aes = null;
         }
-        public void setInFilePath(String text)
+        public void SetInFilePath(String text)
         {
             this.inFile = text;
         }
-        public void setOutFilePath(String text)
+        public void SetOutFilePath(String text)
         {
             this.outFile = text;
         }
@@ -101,7 +101,7 @@ namespace bsk
 
         }
 
-        public void setUsers(List <UserInfo> users)
+        public void SetUserList(List <UserInfo> users)
         {
             this.users = users;
             this.xmlAesHeader = new XmlAesHeader();
@@ -123,7 +123,7 @@ namespace bsk
             xmlAesHeader.feedbackBlockSize = aesConfig.feedbackBlockSize;
         }
 
-        private void memorySerializator()
+        private void ToMemorySerializator()
         {
             this.xmlMemoryStream = new MemoryStream();
             XmlSerializer xs = new XmlSerializer(typeof(XmlAesHeader));
@@ -143,7 +143,7 @@ namespace bsk
             this.xmlAesHeader.lng = fileInStream.Length;
 
             // serializacja nagłowka do XML
-            this.memorySerializator();
+            this.ToMemorySerializator();
             byte[] xmlHeaderBytes = this.xmlMemoryStream.ToArray();
 
 
@@ -266,57 +266,6 @@ namespace bsk
 
                 }
             }
-
-            //byte[] buffer;
-            //int read = 0;
-            //CryptoStream cryptoStream;
-            //StreamCipher streamCipher = new StreamCipher();
-            //if (aes.Mode != CipherMode.OFB)
-            //{
-            //    cryptoStream = new CryptoStream(fileInStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
-            //    buffer = new byte[1048576];
-            //}
-            //else
-            //{
-            //    streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
-            //    cryptoStream = new CryptoStream(fileInStream, streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
-            //    buffer = new byte[8];
-            //}
-
-            //try
-            //{
-            //    while ((read = fileInStream.Read(buffer, 0, buffer.Length)) > 0)
-            //    {
-            //        // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
-            //        main.Dispatcher.BeginInvoke((Action)delegate
-            //        {
-            //            main.encrypionProgressBar.Value += read;
-            //        });
-            //        cryptoStream.Write(buffer, 0, read);
-            //    }
-
-            //    //close up
-
-            //    cryptoStream.Close();
-            //    cryptoStream.Dispose();
-            //    fileInStream.Close();
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("Error: " + ex.Message);
-            //}
-            //finally
-            //{
-
-            //    //streamCipher.Clear();
-            //   // streamCipher.Dispose();
-
-            //    fileOutStream.Close();
-            //    fileOutStream.Dispose();
-            //    this.xmlMemoryStream.Close();
-            //    this.xmlMemoryStream.Dispose();
-            //}
         }
 
 
@@ -346,7 +295,7 @@ namespace bsk
 
 
             XmlSerializer xs = new XmlSerializer(typeof(XmlAesHeader));
-            this.xmlAesHeader = (XmlAesHeader)xs.Deserialize(this.xmlMemoryStream/*reader.ReadSubtree()*/);
+            this.xmlAesHeader = (XmlAesHeader)xs.Deserialize(this.xmlMemoryStream);
             this.xmlMemoryStream.Close();
             this.xmlMemoryStream.Dispose();
 
@@ -391,7 +340,8 @@ namespace bsk
             }
             else
             {
-                streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
+                aes.Mode = CipherMode.OFB;
+                streamCipher = new StreamCipher(aes);
                 cryptoStream = new CryptoStream(fileInStream, streamCipher.CreateDecryptor(), CryptoStreamMode.Read);
             }
 
@@ -413,7 +363,7 @@ namespace bsk
                 {
                     fileOutStream.Write(buffer, 0, read);
 
-                    main.Dispatcher.BeginInvoke((Action)delegate
+                    main.Dispatcher.Invoke((Action)delegate
                     {
                         main.decryptionProgressBar.Value += read;
                     });
@@ -447,19 +397,23 @@ namespace bsk
             }
             finally
             {
-                //if(aes.Mode == CipherMode.OFB)
-                //{
-                //    streamCipher.Clear();
-                //    streamCipher.Dispose();
-                //}
-
                 fileOutStream.Close();
                 fileOutStream.Dispose();
 
                 fileInStream.Close();
                 fileInStream.Dispose();
             }
+            try
+            {
+                cryptoStream = null;
+                fileInStream = null;
+                fileOutStream = null;
+            }
+            catch (Exception) { };
         }
+
+        /* -------------------------- STATIC FUNCTIONS ------------- */
+
         public static String MD5StringHash(String path) {
             StringBuilder str = new StringBuilder(); //= Encoding.UTF8.GetString(md5sum);
             using (var md5 = System.Security.Cryptography.MD5.Create()) using (var stream = File.OpenRead(@path))
