@@ -49,7 +49,7 @@ namespace bsk
 
         private RSACryptoServiceProvider csp;
         private UserInfo user = null;
-        public byte[] sessionKEY;
+        public byte[] passwordHash = null;
         public static String getHashSha256(String plainText)
         {
             String hashString;
@@ -147,52 +147,67 @@ namespace bsk
 
             XmlSerializer serializer = new XmlSerializer(typeof(UserInfo));
             TextWriter writer = new StreamWriter((!privateKeySerialization) ? user.pubKeyLoc : user.privKeyLoc);
-           
-            serializer.Serialize(writer, user);
-            writer.Close();
-            writer.Dispose();
-            writer = null;
-            serializer = null;
+           try
+            {
+                serializer.Serialize(writer, user);
+            } catch (Exception) { }
+            finally
+            {
+                writer.Close();
+                writer.Dispose();
+                writer = null;
+                serializer = null;
+            }
             
         }
 
         public void RSAXmlToKey(String localization,String password = null)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(UserInfo));
-            FileStream fileStream = new FileStream(localization, FileMode.Open);
-            user = new UserInfo();
-            user = (UserInfo)serializer.Deserialize(fileStream);
-            this.privateKey = new RSAParameters();
-            this.publicKey = new RSAParameters();
-
-
-            if ( !String.IsNullOrEmpty(user.rsaKeyString))
+            using (FileStream fileStream = new FileStream(localization, FileMode.Open))
             {
-                // jesli po deserializacji istnieje pole rasKeyString to znaczy ze mamy doczynienia z kluczem prywatnym
-                byte[] bytesSha256Password = Encoding.UTF8.GetBytes(getHashSha256(password));
-                byte[] encryptedRsaKeyBytes = Convert.FromBase64String(this.user.rsaKeyString);
-                byte[] decryptedPrivateKey = AESWorkerClass.fastECBStringDecryptor(encryptedRsaKeyBytes, bytesSha256Password);
-                this.user.rsaKeyString = Encoding.UTF8.GetString(decryptedPrivateKey);
+                user = new UserInfo();
+                user = (UserInfo)serializer.Deserialize(fileStream);
+                this.privateKey = new RSAParameters();
+                this.publicKey = new RSAParameters();
 
-                // deserialzacja XML na RSAParametrs
-                var xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-                var sr = new StringReader(this.user.rsaKeyString);
-                try { this.privateKey = (RSAParameters)xs.Deserialize(sr); }
-               catch(Exception ex) {
-                    csp = new RSACryptoServiceProvider(2048);
-                    this.privateKey = csp.ExportParameters(true);
+
+                if (!String.IsNullOrEmpty(user.rsaKeyString))
+                {
+                    // jesli po deserializacji istnieje pole rasKeyString to znaczy ze mamy doczynienia z kluczem prywatnym
+                    byte[] bytesSha256Password = Encoding.UTF8.GetBytes(getHashSha256(password));
+                    this.passwordHash = bytesSha256Password;
+                    byte[] encryptedRsaKeyBytes = Convert.FromBase64String(this.user.rsaKeyString);
+                    byte[] decryptedPrivateKey = AESWorkerClass.fastECBStringDecryptor(encryptedRsaKeyBytes, bytesSha256Password);
+                    this.user.rsaKeyString = Encoding.UTF8.GetString(decryptedPrivateKey);
+
+                    // deserialzacja XML na RSAParametrs
+                    var xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
+                    var sr = new StringReader(this.user.rsaKeyString);
+                    try { this.privateKey = (RSAParameters)xs.Deserialize(sr); }
+                    catch (Exception ex)
+                    {
+                        csp = new RSACryptoServiceProvider(2048);
+                        this.privateKey = csp.ExportParameters(true);
+                    }
+                    // zapisz klucz
+                    user.rsaKey = (RSAParameters?)this.privateKey;
                 }
-                // zapisz klucz
-                user.rsaKey = (RSAParameters?)this.privateKey;
-            }
 
-            csp = new RSACryptoServiceProvider();
-            csp.ImportParameters((RSAParameters)user.rsaKey);
-            publicKey = csp.ExportParameters(false);
-            if (!csp.PublicOnly) privateKey = csp.ExportParameters(true);
+                csp = new RSACryptoServiceProvider();
+                csp.ImportParameters((RSAParameters)user.rsaKey);
+                publicKey = csp.ExportParameters(false);
+                if (!csp.PublicOnly) privateKey = csp.ExportParameters(true);
+            }
+            serializer = null;
 
         }
-
+        public byte[] RSAGetPassword(int len)
+        {
+            byte[] keyTrimed = new byte[len/8];
+            for (int i = 0; i < len / 8; i++) keyTrimed[i] = this.passwordHash[i];
+            return keyTrimed;
+        }
         public void RSAEncryptSessionKey(byte[] key)
         {
             this.user.encryptedSessionKey = csp.Encrypt(key,true);

@@ -37,7 +37,7 @@ namespace bsk
         // CipherMode
         [XmlElement("CipherMode")]
         public CipherMode cipherMode { set; get; }
-        // length
+        // length of file
         [XmlElement("length")]
         public long lng { set; get; }
         // IV
@@ -52,7 +52,7 @@ namespace bsk
     {
         private AESConfigClass aesConfig;
         private MainWindow main;
-        private Rijndael aes;
+        private RijndaelManaged aes;
         private String inFile;
         private String outFile;
 
@@ -180,14 +180,17 @@ namespace bsk
                     {
                         // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
                         cryptoStream.Write(buffer, 0, read);
-                        main.Dispatcher.BeginInvoke((Action)delegate
+                        main.Dispatcher.Invoke((Action)delegate
                         {
-                            main.encrypionProgressBar.Value += read;
+                             main.encrypionProgressBar.Value += read;
+                          
                         });
+                       
                     }
 
                     //close up
                     fileInStream.Close();
+                    fileInStream.Dispose();
 
                 }
                 catch (Exception ex)
@@ -198,17 +201,27 @@ namespace bsk
                 {
                     cryptoStream.Close();
                     cryptoStream.Dispose();
-                    fileOutStream.Close();
-                    fileOutStream.Dispose();
                     this.xmlMemoryStream.Close();
                     this.xmlMemoryStream.Dispose();
                 }
+                try
+                {
+                    fileOutStream.Close();
+                    fileOutStream.Dispose();
+                    fileOutStream = null;
+                    cryptoStream = null;
+                    this.xmlMemoryStream = null;
+                }
+                catch (Exception) { };
             }
             else
             {
-                StreamCipher streamCipher = new StreamCipher(aes, aes.Key, aes.IV);
-                CryptoStream cryptoStream = new CryptoStream(fileOutStream, streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
-                byte[] buffer = new byte[8];
+
+                aes.Mode = CipherMode.OFB;
+                StreamCipher streamCipher = new StreamCipher(aes);
+
+               CryptoStream cryptoStream = new CryptoStream(fileOutStream, streamCipher.CreateEncryptor(), CryptoStreamMode.Write);
+                byte[] buffer = new byte[aes.FeedbackSize];
                 int read;
 
                 try
@@ -216,11 +229,15 @@ namespace bsk
                     while ((read = fileInStream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         // Application.DoEvents(); // -> for responsive GUI, using Task will be better!
-                        main.Dispatcher.BeginInvoke((Action)delegate
+                        main.Dispatcher.Invoke((Action)delegate
                         {
                             main.encrypionProgressBar.Value += read;
+                            
                         });
+                       
+
                         cryptoStream.Write(buffer, 0, read);
+                        cryptoStream.Flush();
                     }
 
                     //close up
@@ -233,15 +250,20 @@ namespace bsk
                 }
                 finally
                 {
-                    streamCipher.Clear();
-                    streamCipher.Dispose();
 
                     cryptoStream.Close();
+                    cryptoStream.Clear();
                     cryptoStream.Dispose();
-                    fileOutStream.Close();
-                    fileOutStream.Dispose();
+
                     this.xmlMemoryStream.Close();
                     this.xmlMemoryStream.Dispose();
+
+                    try
+                    {
+                        fileOutStream.Close();
+                        fileOutStream.Dispose();
+                    }catch(Exception ex) { };
+
                 }
             }
 
@@ -344,8 +366,9 @@ namespace bsk
                     } catch(Exception ex)
                     {
                         this.aes.KeySize = this.aesConfig.keySize;
-                        this.aes.GenerateKey();
-                        this.aesConfig.key = this.aes.Key;
+                        // this.aes.GenerateKey();
+                        // this.aesConfig.key = this.aes.Key;
+                        this.aesConfig.key = rsa.RSAGetPassword(this.aesConfig.keySize);
                         paddingZeros = true;
                     }
                     break;
