@@ -568,7 +568,7 @@ namespace bsk
                                 Thickness tx = new Thickness(1.0);
                                 newItem.BorderThickness = tx;
                                 newItem.BorderBrush = Brushes.SkyBlue;
-                                newItem.Width = 170.0;
+                                newItem.Width = 300.0;
                                 Thickness px = new Thickness(-29.0, 0.0, -28.0, 0.0);
                                 newItem.Padding = px;
                                 newItem.Click += privateUser_Click;
