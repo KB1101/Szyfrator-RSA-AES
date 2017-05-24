@@ -274,33 +274,37 @@ namespace bsk
         /* ----------------------- KONFIGI PLIKOW ------------------------------------ */
         private void Button_chose_in_file(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-                textBoxInFile.Text = openFileDialog.FileName;
-            this.inFilePath = (textBoxInFile.Text).ToString();
-            aesWorker.SetInFilePath(this.inFilePath);
+            try
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == true)
+                    textBoxInFile.Text = openFileDialog.FileName;
+                this.inFilePath = (textBoxInFile.Text).ToString();
+                aesWorker.SetInFilePath(this.inFilePath);
+            }
+            catch (Exception)
+            {
+                DisplayErrorInfo("InFile","Brak praw odczytu");
+            }
         }
         private void Button_chose_out_file(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            if (saveFileDialog.ShowDialog() == true)
-                textBoxOutFile.Text=saveFileDialog.FileName;
-            this.outFilePath = (textBoxOutFile.Text).ToString();
-            aesWorker.SetOutFilePath(this.outFilePath);
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                if (saveFileDialog.ShowDialog() == true)
+                    textBoxOutFile.Text = saveFileDialog.FileName;
+                this.outFilePath = (textBoxOutFile.Text).ToString();
+                aesWorker.SetOutFilePath(this.outFilePath);
+            }
+            catch (Exception)
+            {
+                DisplayErrorInfo("outFile", "Brak praw zapisu");
+            }
         }
         /* ------------------------- KONFIGI PLIKOW KONIEC --------------------*/
        
-        public String getInFilePath()
-        {
-            return this.inFilePath;
-        }
-        public String getOutFilePath()
-        {
-            return this.outFilePath;
-        }
-
-
-        // Tutaj dodaje/usowa do listy selectedUsers klucze publiczne ktore sa zaznaczone do szyfrowania
+         // Tutaj dodaje/usowa do listy selectedUsers klucze publiczne ktore sa zaznaczone do szyfrowania
         private void odbiorcyMenuUser_Click(object sender, RoutedEventArgs e)
         {
             var clicked = (sender as MenuItem);
@@ -441,28 +445,42 @@ namespace bsk
 
     private void buttonInEncryptedFile_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-                textBoxEncrypted.Text = openFileDialog.FileName;
-            this.inEncryptedPath = (textBoxEncrypted.Text).ToString();
+            try
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == true)
+                    textBoxEncrypted.Text = openFileDialog.FileName;
+                this.inEncryptedPath = (textBoxEncrypted.Text).ToString();
 
-            aesWorker.SetInFilePath(this.inEncryptedPath);
-
-            this.showPrivateKeysList();
+                aesWorker.SetInFilePath(this.inEncryptedPath);
+           
+                 this.showPrivateKeysList();
+            }
+            catch (Exception)
+            {
+                DisplayErrorInfo("InEncryptedFile Dialog", "Brak praw odczytu");
+            }
         }
 
         private void buttonOutFileDecrypted_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            if (saveFileDialog.ShowDialog() == true)
-                textBoxDecrypted.Text = saveFileDialog.FileName;
-            this.outDecryptedPath = (textBoxDecrypted.Text).ToString();
-            aesWorker.SetOutFilePath(outDecryptedPath);
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                if (saveFileDialog.ShowDialog() == true)
+                    textBoxDecrypted.Text = saveFileDialog.FileName;
+                this.outDecryptedPath = (textBoxDecrypted.Text).ToString();
+                aesWorker.SetOutFilePath(outDecryptedPath);
+            }
+            catch (Exception)
+            {
+                DisplayErrorInfo("OutFilePath Dialog", "Brak praw zapisu");
+            }
         }
 
         private void privateUser_Click(object sender, RoutedEventArgs e)
         {
-
+            this.selectedPrivateUser = null;
             var clicked = (sender as MenuItem);
             int index = 0;
             for (int itemIndex = 0; itemIndex < stackKeys.Children.Count; itemIndex++)
@@ -493,19 +511,32 @@ namespace bsk
         private void updatePrivateUserList()
         {
             selectedPrivateUser = null;
+            this.stackKeys.Children.Clear();
+            this.privateUsers.Clear(); // wyczyść liste uzytkowników
+
             XmlSerializer xSerializer = new XmlSerializer(typeof(XmlAesHeader));
-            byte[] xlmBytes;
+            byte[] xlmBytes = null;
             using (FileStream fileStream = new FileStream(this.inEncryptedPath, FileMode.Open))
             {
-                byte[] length = new byte[4];
-                fileStream.Read(length, 0, length.Length);
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(length);
+                try
+                {
+                    byte[] length = new byte[4];
+                    fileStream.Read(length, 0, length.Length);
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(length);
 
-                int intLenght = BitConverter.ToInt32(length, 0);
-                xlmBytes = new byte[intLenght];
-                fileStream.Read(xlmBytes, 0, intLenght);
+                    int intLenght = BitConverter.ToInt32(length, 0);
+                    xlmBytes = new byte[intLenght];
+                    fileStream.Read(xlmBytes, 0, intLenght);
+                }
+                catch (Exception)
+                {
+                    DisplayErrorInfo("FielReader", "FileReader: Brak dostępu do pliku lub plik uszkodzony");
+                    return;
+                }
             }
+            try
+            {
                 MemoryStream xmlMemoryStream = new MemoryStream(xlmBytes);
 
                 XmlAesHeader xmlHeader = (XmlAesHeader)xSerializer.Deserialize(xmlMemoryStream); //deserializacja nagłowka pliku 
@@ -545,11 +576,15 @@ namespace bsk
                                 stackKeys.Children.Add(newItem);
                                 break;
                             } // end if
-                    } // end foreach > fromXMLFileUsersList
-                } // end streamReader
-            } //end foreach > privateKeyFiles
-            prywatniOdbiorcyMenu.UpdateLayout();
-            stackKeys.UpdateLayout();
+                        } // end foreach > fromXMLFileUsersList
+                    } // end streamReader
+                } //end foreach > privateKeyFiles
+                prywatniOdbiorcyMenu.UpdateLayout();
+                stackKeys.UpdateLayout();
+            } catch (Exception ex)
+            {
+                DisplayErrorInfo("File deserializer", $"Bład deserializacji\n{ex.ToString()}");
+            }
         }
 
 
@@ -614,7 +649,14 @@ namespace bsk
             aesWorker.SetInFilePath(this.inEncryptedPath);
             aesWorker.SetOutFilePath(this.outDecryptedPath);
             this.rsaWorker = new RSAWorkerClass();
-            rsaWorker.RSAXmlToKey(this.selectedPrivateUser.privKeyLoc, passwordPlainText);
+            try
+            {
+                rsaWorker.RSAXmlToKey(this.selectedPrivateUser.privKeyLoc, passwordPlainText);
+            } catch(Exception ex)
+            {
+                DisplayErrorInfo("Decryptor", $"Bład w czasie odczytu klucza prywatnego/n{ex.ToString()}");
+                return;
+            }
 
             var me = this;
             Task.Run(() =>
@@ -624,7 +666,7 @@ namespace bsk
                 {
                     MessageBox.Show(me, $"Plik: {inEncryptedPath} został odszyfrowany jako: {outDecryptedPath}");
                     if (me.md5sum) MessageBox.Show($"Wartość sumy MD5 pliku: {outDecryptedPath} wynosi:\n {AESWorkerClass.MD5StringHash(me.outDecryptedPath)}");
-                    me.decryptionProgressBar.Value = 0;
+                    me.decryptionProgressBar.Value = 0.0;
                 });
 
             });
@@ -685,10 +727,18 @@ namespace bsk
                 selectedUsers[index] = rsaWorker.GetUser();
                 rsaWorker = null;
             }
-            aesWorker.AESEncryptConfig();
-            aesWorker.SetInFilePath(this.inFilePath);
-            aesWorker.SetOutFilePath(this.outFilePath);
-            aesWorker.SetUserList(this.selectedUsers);
+            try {
+                aesWorker.AESEncryptConfig();
+                aesWorker.SetInFilePath(this.inFilePath);
+                aesWorker.SetOutFilePath(this.outFilePath);
+                aesWorker.SetUserList(this.selectedUsers);
+            }
+            catch(Exception ex)
+            {
+                DisplayErrorInfo("Encryptor", $"Bład konfiguracji. \n{ex.ToString()}");
+                return;
+            }
+
 
             var me = this;
             Task.Run( () =>
@@ -758,7 +808,13 @@ namespace bsk
 
         private void ConfigReset(object sender, RoutedEventArgs e)
         {
-            ShowPublicKeysList();
+            try
+            {
+                ShowPublicKeysList();
+            } catch(Exception ex)
+            {
+                DisplayErrorInfo("PublicKeyList", "Nie można wyświetlić listy kluczy publicznych.");
+            }
         }
     }
 }

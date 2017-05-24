@@ -29,6 +29,7 @@ namespace bsk
 
         private String rsaPrivateKeyLocation;
         private String rsaPublicKeyLocation;
+        private Random rnd;
 
         public GenerateKeyPairWindow(ref MainWindow mainWindow)
         {
@@ -38,6 +39,7 @@ namespace bsk
 
             rsaPrivateKeyLocation = this.mainWindow.getPrivateKeysDirPath();
             rsaPublicKeyLocation = this.mainWindow.getPublicKeysDirPath();
+           rnd = new Random();
 
         }
 
@@ -81,7 +83,7 @@ namespace bsk
             if (textBoxEmail.Text.Trim() != String.Empty)
             {
                 textBoxEmail.BorderBrush = Brushes.Green;
-                this.emailText = textBoxEmail.Text;
+                this.emailText = textBoxEmail.Text.Trim();
             }
             else
             {
@@ -94,7 +96,7 @@ namespace bsk
             if (textBoxNazwa.Text.Trim() != String.Empty)
             {
                 textBoxNazwa.BorderBrush = Brushes.Green;
-                this.nameText = textBoxNazwa.Text;
+                this.nameText = textBoxNazwa.Text.Trim();
             }
             else
             {
@@ -109,15 +111,32 @@ namespace bsk
 
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
+            if (String.IsNullOrEmpty(emailText))
+            {
+                MessageBox.Show(this, "RSA Keys Generator", "Pole email jest puste");
+                return;
+            }
+            if (String.IsNullOrEmpty(nameText))
+            {
+                MessageBox.Show(this, "RSA Keys Generator", "Pole nazwy użytkownka jest puste");
+                return;
+            }
+            if (String.IsNullOrEmpty(passwordText))
+            {
+                MessageBox.Show(this, "RSA Keys Generator", "Pole hasła jest puste");
+                return;
+            }
+
+            String filename = $"{this.nameText}_{rnd.Next(100, 10000)}";
 
             // tutaj zacznij generowanie
             if ((File.GetAttributes(this.rsaPublicKeyLocation) & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                this.rsaPublicKeyLocation = this.rsaPublicKeyLocation + $@"\{this.nameText}.key"; 
+                this.rsaPublicKeyLocation = this.rsaPublicKeyLocation + $@"\{filename}.key"; 
             }
             if ((File.GetAttributes(this.rsaPrivateKeyLocation) & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                this.rsaPrivateKeyLocation = this.rsaPrivateKeyLocation + $@"\{this.nameText}.privatekey";
+                this.rsaPrivateKeyLocation = this.rsaPrivateKeyLocation + $@"\{filename}.privatekey";
             }
             RSAWorkerClass rsaConfig = new RSAWorkerClass(this.rsaKeySizeForm);
             if (String.IsNullOrEmpty(this.rsaPrivateKeyLocation))
@@ -134,6 +153,7 @@ namespace bsk
 
             MessageBox.Show(this,"Wygenerowano!","Generator kluczy RSA",MessageBoxButton.OK);
             rsaConfig = null;
+            checkBox_Unchecked(sender, e);
         }
 
         private void buttonPrivateKeyLocation_Click(object sender, RoutedEventArgs e)
@@ -156,6 +176,20 @@ namespace bsk
             saveFileDialog.AddExtension = true;
             if (saveFileDialog.ShowDialog() == true)
                 rsaPublicKeyLocation = saveFileDialog.FileName;
+        }
+
+        private void checkBox_Checked(object sender, RoutedEventArgs e)
+        {
+            buttonPrivateKeyLocation.IsEnabled = true;
+            buttonPublicKeyLocation.IsEnabled = true;
+        }
+
+        private void checkBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            buttonPrivateKeyLocation.IsEnabled = false;
+            buttonPublicKeyLocation.IsEnabled = false;
+            rsaPrivateKeyLocation = this.mainWindow.getPrivateKeysDirPath();
+            rsaPublicKeyLocation = this.mainWindow.getPublicKeysDirPath();
         }
     }
 }

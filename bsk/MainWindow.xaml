@@ -125,7 +125,7 @@
                     <GroupBox x:Name="groupBox2" Header="Odbiorcy" Margin="10,245,10,0" VerticalAlignment="Top" Height="180" BorderBrush="#FF80C2EA">
                         <Canvas Margin="0,0,-2,-2">
                             <Menu x:Name="odbiorcyMenu" HorizontalAlignment="Left" Height="140" VerticalAlignment="Top" Width="388" Canvas.Left="10" Canvas.Top="10" BorderBrush="#FFA0B7F5" OpacityMask="Red" Background="#FFEDF3F5" BorderThickness="1">
-                                <ScrollViewer HorizontalAlignment="Left" Height="140" Width="388" Margin="-9,0,0,0">
+                                <ScrollViewer HorizontalAlignment="Left" Height="140" Width="388" Margin="-9,0,0,0" CanContentScroll="True">
                                     <StackPanel x:Name="odbiorcyMenuStack" Width="388" HorizontalAlignment="Left" Height="139" >
                                         <!--<MenuItem x:Name="label1_Copy" Header="AAAAAAAAAAAAAAAAAAA" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" HorizontalAlignment="Left" Width="168" Margin="0" VerticalContentAlignment="Center" Padding="-29,0,-28,0"/>-->
                                     </StackPanel>
@@ -133,8 +133,8 @@
                             </Menu>
                         </Canvas>
                     </GroupBox>
-                    <Button x:Name="button1" Content="Odswież listę" HorizontalAlignment="Left" Margin="227,430,0,0" VerticalAlignment="Top" Width="121" Background="#FF68B2FB" Click="ConfigReset"/>
-                    <Button x:Name="buttonExit" Content="Zakończ" HorizontalAlignment="Left" Margin="353,430,0,0" VerticalAlignment="Top" Width="75" Background="#FFFF7252" Click="buttonExit_Click"/>
+                    <Button x:Name="button1" Content="Odswież listę" HorizontalAlignment="Left" Margin="217,430,0,0" VerticalAlignment="Top" Width="121" Background="#FF68B2FB" Click="ConfigReset"/>
+                    <Button x:Name="buttonExit" Content="Zakończ" Margin="353,430,10,0" VerticalAlignment="Top" Background="#FFFF7252" Click="buttonExit_Click"/>
                     <Button x:Name="szyfrujButton" Content="Szyfruj" HorizontalAlignment="Left" Margin="17,430,0,0" VerticalAlignment="Top" Width="130" Background="#FF68B2FB" Click="EncryptButton_Click"/>
                     <ProgressBar x:Name="encrypionProgressBar" Height="35" Margin="17,460,10,0" VerticalAlignment="Top" Background="White"/>
                     <Label x:Name="label6" Content="Stan: 0%" HorizontalAlignment="Left" Margin="192,465,0,0" VerticalAlignment="Top" Height="30"/>
@@ -160,7 +160,7 @@
                     <GroupBox x:Name="groupBox3" Header="Klucz" Margin="10,105,10,0" VerticalAlignment="Top" Height="235" BorderBrush="#FF80C2EA">
                         <Canvas Margin="4,-6,4,3">
                             <Menu  x:Name="prywatniOdbiorcyMenu" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="378" Canvas.Left="10" Canvas.Top="10" BorderBrush="#FFA0B7F5" OpacityMask="Red"  BorderThickness="1">
-                                <ScrollViewer HorizontalAlignment="Left" Height="150" Width="378" Margin="-9,0,0,0">
+                                <ScrollViewer HorizontalAlignment="Left" Height="150" Width="378" Margin="-9,0,0,0" CanContentScroll="True">
                                     <StackPanel x:Name="stackKeys" Width="378" HorizontalAlignment="Left" >
                                         <!--<MenuItem x:Name="label1_Copy" Header="AAAAAAAAAAAAAAAAAAA" VerticalAlignment="Top" Background="#00000000" BorderThickness="1" BorderBrush="#FF2CB9FB" HorizontalAlignment="Left" Width="168" Margin="0" VerticalContentAlignment="Center" Padding="-29,0,-28,0"/>-->
                                     </StackPanel>
