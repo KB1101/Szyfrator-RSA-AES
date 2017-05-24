@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using System.IO;
 
 namespace bsk
 {
@@ -34,6 +35,10 @@ namespace bsk
             InitializeComponent();
             this.mainWindow = mainWindow;
             rsaKeySize2048.IsChecked = true;
+
+            rsaPrivateKeyLocation = this.mainWindow.getPrivateKeysDirPath();
+            rsaPublicKeyLocation = this.mainWindow.getPublicKeysDirPath();
+
         }
 
         private void rsaKeySize2048_Checked(object sender, RoutedEventArgs e)
@@ -104,9 +109,18 @@ namespace bsk
 
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
+
             // tutaj zacznij generowanie
+            if ((File.GetAttributes(this.rsaPublicKeyLocation) & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                this.rsaPublicKeyLocation = this.rsaPublicKeyLocation + $@"\{this.nameText}.key"; 
+            }
+            if ((File.GetAttributes(this.rsaPrivateKeyLocation) & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                this.rsaPrivateKeyLocation = this.rsaPrivateKeyLocation + $@"\{this.nameText}.privatekey";
+            }
             RSAWorkerClass rsaConfig = new RSAWorkerClass(this.rsaKeySizeForm);
-            if (this.rsaPrivateKeyLocation == String.Empty || this.rsaPrivateKeyLocation == null)
+            if (String.IsNullOrEmpty(this.rsaPrivateKeyLocation))
                 this.rsaPrivateKeyLocation = this.rsaPublicKeyLocation + ".privatekey";
 
             rsaConfig.UserConfig(this.emailText, 

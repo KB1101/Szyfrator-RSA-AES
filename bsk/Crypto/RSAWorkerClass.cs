@@ -117,8 +117,20 @@ namespace bsk
                 csp.ImportParameters((RSAParameters)this.user.rsaKey);
                 publicKey = csp.ExportParameters(false);
                 if (!csp.PublicOnly) privateKey = csp.ExportParameters(true);
-            } catch (CryptographicException cex)
+            } catch (Exception cex)
             {
+                String keyLocalization = null;
+                if (this.user.pubKeyLoc != null) keyLocalization = this.user.pubKeyLoc;
+                else return;
+
+                RSAXmlToKey(keyLocalization);
+                csp = new RSACryptoServiceProvider(((RSAParameters)this.user.rsaKey).Modulus.Length * 8);
+                csp.ImportParameters((RSAParameters)this.user.rsaKey);
+                publicKey = csp.ExportParameters(false);
+
+                if (!csp.PublicOnly) privateKey = csp.ExportParameters(true);
+                
+
                 System.Diagnostics.Trace.WriteLine($"UserConfig: {cex}");
             }
         }
@@ -248,7 +260,7 @@ namespace bsk
             try
             {
                 decrypted = csp.Decrypt(encrypted, true);
-            } catch (Exception) { }
+            } catch (Exception ex) { throw ex; }
             return decrypted;
         }
 

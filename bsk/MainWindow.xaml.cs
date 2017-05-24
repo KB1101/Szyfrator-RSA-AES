@@ -47,10 +47,18 @@ namespace bsk
 
         private List<String> privateKeyFiles;
         private List<UserInfo> privateUsers;
-        private UserInfo selectedPrivateUser;
+        private UserInfo selectedPrivateUser = null;
 
         private RSAWorkerClass rsaWorker;
 
+        public String getPublicKeysDirPath()
+        {
+            return this.publicKeysDirPath;
+        }
+        public String getPrivateKeysDirPath()
+        {
+            return this.privateKeysDirPath;
+        }
 
         public MainWindow()
         {
@@ -484,6 +492,7 @@ namespace bsk
         }
         private void updatePrivateUserList()
         {
+            selectedPrivateUser = null;
             XmlSerializer xSerializer = new XmlSerializer(typeof(XmlAesHeader));
             byte[] xlmBytes;
             using (FileStream fileStream = new FileStream(this.inEncryptedPath, FileMode.Open))
@@ -497,10 +506,13 @@ namespace bsk
                 xlmBytes = new byte[intLenght];
                 fileStream.Read(xlmBytes, 0, intLenght);
             }
-            MemoryStream xmlMemoryStream = new MemoryStream(xlmBytes);
+                MemoryStream xmlMemoryStream = new MemoryStream(xlmBytes);
 
-            XmlAesHeader xmlHeader = (XmlAesHeader)xSerializer.Deserialize(xmlMemoryStream); //deserializacja nagłowka pliku 
-            List<ShortUser> fromXMLFileUsersList = xmlHeader.users;
+                XmlAesHeader xmlHeader = (XmlAesHeader)xSerializer.Deserialize(xmlMemoryStream); //deserializacja nagłowka pliku 
+                List<ShortUser> fromXMLFileUsersList = xmlHeader.users;
+
+                xmlMemoryStream.Close();
+                xmlMemoryStream.Dispose();
 
                 foreach (var keyFile in privateKeyFiles) // przeglądanie tablicy kluczy
                 {
@@ -567,12 +579,42 @@ namespace bsk
             }
 
         }
-
-        private void buttonDecrypt_Click(object sender, RoutedEventArgs e)
+        private void DisplayErrorInfo(String from, String info)
         {
+            MessageBox.Show(this, $"Bład: {info}", $"{from}", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void DecryptButton_Click(object sender, RoutedEventArgs e)
+        {
+            // stage1: inFilePath null or empty checking
+            if (String.IsNullOrEmpty(this.inEncryptedPath))
+            {
+                DisplayErrorInfo("Decryptor", "Brak pliku wejściowego!");
+                return;
+            }
+            // stage2: outFilePath null or empty checking
+            if (String.IsNullOrEmpty(this.outDecryptedPath))
+            {
+                DisplayErrorInfo("Decryptor", "Brak pliku wyjściowego!");
+                return;
+            }
+            // stage3: no one user selected
+            if (selectedPrivateUser == null)
+            {
+                DisplayErrorInfo("Decryptor", "Brak wybranego użytkownika klucza prywatnego");
+                return;
+            }
+            String passwordPlainText = this.passwordBox.Password as String;
+            // stage4: no password
+            if (String.IsNullOrEmpty(passwordPlainText))
+            {
+                DisplayErrorInfo("Decryptor", "Nie podano hasła klucza prywatnego");
+                return;
+            }
+            aesWorker.SetInFilePath(this.inEncryptedPath);
+            aesWorker.SetOutFilePath(this.outDecryptedPath);
             this.rsaWorker = new RSAWorkerClass();
-            String getKey = this.passwordBox.Password as String;
-            rsaWorker.RSAXmlToKey(this.selectedPrivateUser.privKeyLoc, getKey);
+            rsaWorker.RSAXmlToKey(this.selectedPrivateUser.privKeyLoc, passwordPlainText);
 
             var me = this;
             Task.Run(() =>
@@ -580,8 +622,8 @@ namespace bsk
                 aesWorker.AESDecrypt(selectedPrivateUser.email, ref rsaWorker);
                 this.Dispatcher.BeginInvoke((Action)delegate
                 {
-                    MessageBox.Show(me, "Odszyfrowano");
-                    if (me.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(me.outDecryptedPath));
+                    MessageBox.Show(me, $"Plik: {inEncryptedPath} został odszyfrowany jako: {outDecryptedPath}");
+                    if (me.md5sum) MessageBox.Show($"Wartość sumy MD5 pliku: {outDecryptedPath} wynosi:\n {AESWorkerClass.MD5StringHash(me.outDecryptedPath)}");
                     me.decryptionProgressBar.Value = 0;
                 });
 
@@ -589,8 +631,44 @@ namespace bsk
         }
 
 
-        private void szyfrujButton_Click(object sender, RoutedEventArgs e)
+        private void EncryptButton_Click(object sender, RoutedEventArgs e)
         {
+            // preparing to encrypt
+
+            // stage1: inFilePath null or empty checking
+            if (String.IsNullOrEmpty(this.inFilePath))
+            {
+                DisplayErrorInfo("Encryptor", "Brak pliku wejściowego!");
+                return;
+            }
+            // stage2: outFilePath null or empty checking
+            if (String.IsNullOrEmpty(this.outFilePath))
+            {
+                DisplayErrorInfo("Encryptor", "Brak pliku wyjściowego!");
+                return;
+            }
+            // if OFB or CFB cipher mode
+            if (aesConfig.CipherMode == AESConfigClass.ModeEnum.OFB || aesConfig.CipherMode == AESConfigClass.ModeEnum.CFB)
+            {
+                // stage3: fedbackBloskSize equals blockSize 
+                if (aesConfig.feedbackBlockSize == aesConfig.blockSize)
+                {
+                    DisplayErrorInfo("Encryptor", "Długość bloku jest taka sama jak długość podbloku");
+                    return;
+                }
+                // stage4: blockSize cannot be divided by feedbackBlockSize
+                if (aesConfig.blockSize % aesConfig.feedbackBlockSize != 0)
+                {
+                    DisplayErrorInfo("Encryptor", "Długość bloku nie jest podzielna przez długość podbloku");
+                    return;
+                }
+            }
+            // stage5: no one user selected
+            if (selectedUsers.Count == 0)
+            {
+                DisplayErrorInfo("Encryptor", "Brak wybranych użytkowników!");
+                return;
+            }
 
             // wygeneruj klucz sesjii i wektor IV
             byte[] sessionAesKey = SessionKeyClass.GenerateKey(aesConfig.keySize);
@@ -605,13 +683,12 @@ namespace bsk
                 rsaWorker.UserConfig(selectedUsers[index]);
                 rsaWorker.RSAEncryptSessionKey(aesConfig.key);
                 selectedUsers[index] = rsaWorker.GetUser();
+                rsaWorker = null;
             }
             aesWorker.AESEncryptConfig();
             aesWorker.SetInFilePath(this.inFilePath);
             aesWorker.SetOutFilePath(this.outFilePath);
             aesWorker.SetUserList(this.selectedUsers);
-
-           
 
             var me = this;
             Task.Run( () =>
@@ -619,9 +696,9 @@ namespace bsk
                 aesWorker.AESEncrypt();
                 this.Dispatcher.BeginInvoke((Action)delegate
                 {
-                    MessageBox.Show(me, "Zaszyfrowano");
-                    if (me.md5sum) MessageBox.Show(AESWorkerClass.MD5StringHash(me.inFilePath));
-                    me.decryptionProgressBar.Value = 0;
+                    MessageBox.Show(me, $"Plik: {Path.GetFileName(inFilePath)} zaszyfrowany jako {Path.GetFileName(outFilePath)}!");
+                    if (me.md5sum) MessageBox.Show($"Wartość sumy MD5 pliku: {inFilePath} wynosi:\n {AESWorkerClass.MD5StringHash(me.inFilePath)}");
+                    me.encrypionProgressBar.Value = 0.0;
                 });
 
             });
@@ -678,5 +755,10 @@ namespace bsk
                 }
             }
         } //end > importKeyButton_Click
+
+        private void ConfigReset(object sender, RoutedEventArgs e)
+        {
+            ShowPublicKeysList();
+        }
     }
 }
