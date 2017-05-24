@@ -22,8 +22,9 @@ namespace bsk
 
     public partial class MainWindow : Window
     {
-        private AESConfigClass aesConfig;
-        private AESWorkerClass aesWorker;
+        public RSAWorkerClass rsaWorker;
+        public AESConfigClass aesConfig;
+        public AESWorkerClass aesWorker;
 
         private Boolean feedbackBlockState;
         private Boolean md5sum;
@@ -49,7 +50,7 @@ namespace bsk
         private List<UserInfo> privateUsers;
         private UserInfo selectedPrivateUser = null;
 
-        private RSAWorkerClass rsaWorker;
+
 
         public String getPublicKeysDirPath()
         {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace bsk
 {
     
-    class AESConfigClass
+    public class AESConfigClass
     {
         public enum ModeEnum
         {       

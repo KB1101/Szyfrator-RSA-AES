@@ -48,7 +48,7 @@ namespace bsk
         public List <ShortUser> users { set; get; }
     }
 
-    class AESWorkerClass
+   public class AESWorkerClass
     {
         private AESConfigClass aesConfig;
         private MainWindow main;
@@ -260,7 +260,7 @@ namespace bsk
             }
     }
 
-        public void AESDecrypt(String userMail, ref RSAWorkerClass rsa)
+      public  void AESDecrypt(String userMail, ref RSAWorkerClass rsa)
         {
             // create input file stream
             using (FileStream fileInStream = new FileStream(inFile, FileMode.Open))

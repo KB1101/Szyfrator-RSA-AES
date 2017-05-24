@@ -41,7 +41,7 @@ namespace bsk
         }
     }
 
-    class RSAWorkerClass
+    public class RSAWorkerClass
     {
         private int rsaKeySize = 2048; // RSA Key Size 
         public RSAParameters publicKey { get; set; }
@@ -74,6 +74,7 @@ namespace bsk
         {
             this.rsaKeySize = keySize;
             csp = new RSACryptoServiceProvider(rsaKeySize);
+            this.user = new UserInfo();
         }
         ~RSAWorkerClass()
         {
@@ -96,7 +97,7 @@ namespace bsk
         
         public void UserConfig(String email, String name, String pubLocation, String privLocation)
         {
-            user = new UserInfo();
+            this.user = new UserInfo();
             this.user.email = email;
             this.user.name = name;
             this.user.pubKeyLoc = pubLocation;
