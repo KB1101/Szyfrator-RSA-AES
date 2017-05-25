@@ -103,8 +103,12 @@
                                     <ContextMenu >
                                         <MenuItem Header="8" Click="menuFeedbackBlockSize" />
                                         <MenuItem Header="16" Click="menuFeedbackBlockSize"/>
-                                        <!--tutaj maja byc wielokrotnosci 8 !!!-->
+                                        <MenuItem Header="24" Click="menuFeedbackBlockSize"/> <!-- 192bit blok -->
+                                        <MenuItem Header="32" Click="menuFeedbackBlockSize"/>
+                                        <MenuItem Header="48" Click="menuFeedbackBlockSize"/> <!-- 192bit blok -->
+                       
                                         <MenuItem Header="64" Click="menuFeedbackBlockSize"/>
+                                        <MenuItem Header="96" Click="menuFeedbackBlockSize"/> <!-- 192bit blok -->
                                         <MenuItem Header="128" Click="menuFeedbackBlockSize"/>
                                     </ContextMenu>
                                 </Button.ContextMenu>
