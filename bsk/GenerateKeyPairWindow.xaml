@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:bsk"
         mc:Ignorable="d"
-        Title="Generuj nową parę kluczy RSA" Height="367" Width="304">
-    <Grid Height="336" VerticalAlignment="Top">
-        <GroupBox x:Name="groupBox" Header="Lokaliacja kluczy RSA" BorderBrush="#FFC1826A" Height="115" VerticalAlignment="Top" Margin="0,0,4,0">
-            <Grid Margin="0,0,0,0" Height="93" VerticalAlignment="Top">
-                <Button x:Name="buttonPublicKeyLocation" Content="Lokalizacja klucza publicznego" Canvas.Left="10" Canvas.Top="10" Height="25" Margin="10,58,8,0" VerticalAlignment="Top" Click="buttonPublicKeyLocation_Click" />
-                <Button x:Name="buttonPrivateKeyLocation" Content="Lokalizacja klucza prywatnego" Canvas.Left="10" Canvas.Top="49" Height="25" Margin="10,10,8,0" VerticalAlignment="Top" Click="buttonPrivateKeyLocation_Click" />
+        Title="Generuj nową parę kluczy RSA" Height="412" Width="304">
+    <Grid Margin="0,0,0,-1">
+        <GroupBox x:Name="groupBox" Header="Lokaliacja kluczy RSA" BorderBrush="#FFC1826A" Height="145" VerticalAlignment="Top" Margin="0,0,4,0">
+            <Grid Margin="0,0,0,3">
+                <Button x:Name="buttonPublicKeyLocation" Content="Lokalizacja klucza publicznego" Canvas.Left="10" Canvas.Top="10" Height="25" Margin="10,44,8,0" VerticalAlignment="Top" Click="buttonPublicKeyLocation_Click" IsEnabled="False" />
+                <Button x:Name="buttonPrivateKeyLocation" Content="Lokalizacja klucza prywatnego" Canvas.Left="10" Canvas.Top="49" Height="25" Margin="10,10,8,0" VerticalAlignment="Top" Click="buttonPrivateKeyLocation_Click" IsEnabled="False" />
+                <CheckBox x:Name="checkBox" Content="Zmień domyslną lokalizacje &#xD;&#xA;generowanych kluczy" Margin="12,76,8,10" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="groupBox1" Header="Dane" Margin="1,120,4,0" VerticalAlignment="Top" Height="170">
+        <GroupBox x:Name="groupBox1" Header="Dane" Margin="1,150,4,0" VerticalAlignment="Top" Height="170" BorderBrush="#FF57AADC">
             <Grid Margin="0,0,0,-2">
                 <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="EMAIL:" VerticalAlignment="Top"/>
                 <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="NAZWA:" VerticalAlignment="Top"/>
@@ -28,8 +29,8 @@
                 <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="10,123,0,-5" TextWrapping="Wrap" Text="DŁ. KLUCZA:" VerticalAlignment="Top"/>
             </Grid>
         </GroupBox>
-        <Button x:Name="startButton" Content="Generuj" Margin="10,295,101,0" VerticalAlignment="Top" Height="31" Background="#FF80A5E6" Click="startButton_Click" />
-        <Button x:Name="exitButton" Content="Zamknij" Margin="0,295,10,10" Background="#FFE27F7F" Click="exitButton_Click" HorizontalAlignment="Right" Width="86"/>
+        <Button x:Name="startButton" Content="Generuj" Margin="10,337,101,0" VerticalAlignment="Top" Height="31" Background="#FF80A5E6" Click="startButton_Click" />
+        <Button x:Name="exitButton" Content="Zamknij" Margin="0,335,10,0" Background="#FFE27F7F" Click="exitButton_Click" HorizontalAlignment="Right" Width="86" Height="33" VerticalAlignment="Top"/>
 
 
     </Grid>
