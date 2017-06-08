@@ -121,9 +121,9 @@
                                 </Button.Content>
                             </Button>
 
-                            <TextBlock x:Name="textBlock_Copy1" TextWrapping="Wrap" Text="bits" Height="21" Canvas.Left="163" Canvas.Top="10" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
-                            <TextBlock x:Name="textBlock_Copy2" TextWrapping="Wrap" Text="bits" Height="23" Canvas.Left="163" Canvas.Top="38" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
-                            <TextBlock x:Name="textBlock_Copy3" TextWrapping="Wrap" Text="bits" Height="23" Canvas.Left="366" Canvas.Top="70" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                            <TextBlock x:Name="textBlock_Copy1" TextWrapping="Wrap" Text="bitów" Height="21" Canvas.Left="163" Canvas.Top="10" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                            <TextBlock x:Name="textBlock_Copy2" TextWrapping="Wrap" Text="bitów" Height="23" Canvas.Left="163" Canvas.Top="38" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
+                            <TextBlock x:Name="textBlock_Copy3" TextWrapping="Wrap" Text="bitów" Height="23" Canvas.Left="366" Canvas.Top="70" Width="22" RenderTransformOrigin="-0.591,-1.812"/>
                         </Canvas>
                     </GroupBox>
                     <GroupBox x:Name="groupBox2" Header="Odbiorcy" Margin="10,245,10,0" VerticalAlignment="Top" Height="180" BorderBrush="#FF80C2EA">
