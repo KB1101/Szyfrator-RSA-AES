@@ -48,7 +48,7 @@ namespace bsk
         public List <ShortUser> users { set; get; }
     }
 
-    class AESWorkerClass
+    public class AESWorkerClass
     {
         private AESConfigClass aesConfig;
         private MainWindow main;

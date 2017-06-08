@@ -22,7 +22,7 @@ namespace bsk
 
     public partial class MainWindow : Window
     {
-        private AESConfigClass aesConfig;
+        public AESConfigClass aesConfig;
         private AESWorkerClass aesWorker;
 
         private Boolean feedbackBlockState;

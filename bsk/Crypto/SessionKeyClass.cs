@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace bsk
 {
-    class SessionKeyClass
+    public class SessionKeyClass
     {
         private String sessionKeyString;
         private byte[] sessionKeyBytes;
